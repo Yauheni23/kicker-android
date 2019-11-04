@@ -8,7 +8,6 @@ import {Ionicons} from '@expo/vector-icons';
 import AppNavigator from './navigation/AppNavigator';
 import {EntryScreen} from './screens/EntryScreen';
 
-
 export default function App(props) {
     const [isLoadingComplete, setLoadingComplete] = useState(false);
     const [isEntry, setIsEntry] = useState(false);

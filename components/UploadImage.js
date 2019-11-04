@@ -4,6 +4,8 @@ import * as Permissions  from 'expo-permissions';
 import * as ImagePicker  from 'expo-image-picker';
 import * as axios  from 'axios';
 import {serverAddress} from '../constants/server';
+import {RNS3} from 'react-native-aws3/src/RNS3';
+import { ACCESS_KEY, SECRET_KEY } from '../env'
 
 export class UploadImage extends React.Component {
     state = {
@@ -11,34 +13,39 @@ export class UploadImage extends React.Component {
         isUploading: false
     };
 
+
     selectPicture = async () => {
         await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
-        const { cancelled, uri } = await ImagePicker.launchImageLibraryAsync();
-        if (!cancelled) this.setState({ image: uri });
-
-        this.uploadImage(uri);
+        const file = await ImagePicker.launchImageLibraryAsync();
+        const { cancelled, uri } = file;
+        this.setState({isUploading: true});
+        if (!cancelled) this.uploadImage(uri);
     };
 
-    uploadImage = async (uri) => {
-        this.setState({isUploading: true});
+    uploadImage = (uri) => {
+        const type = uri.split('.').pop();
 
-        let uploadData = new FormData();
-        uploadData.append('submit', 'ok');
-        uploadData.append('file', {
-            type: 'image/*',
+        const file = {
             uri,
-            name: 'qqqqqq.jpg'
-        });
+            name: new Date().getTime() + '.' + type,
+            type: `image/${type}`,
+        };
 
-        fetch(`${serverAddress}/image`, {
-            method: 'post',
-            body: uploadData,
-        })
-            .then(res => {
-                console.log(res);
-            })
-            .catch(error => console.log(error));
+        const config = {
+            keyPrefix: 'image/',
+            bucket: 'myimagesforcoursework',
+            region: 'eu-central-1',
+            accessKey: ACCESS_KEY,
+            secretKey: SECRET_KEY,
+            successActionStatus: 201
+        }
+
+        RNS3.put(file, config)
+            .then( response => this.setState({
+                image: response.body.postResponse.location,
+                isUploading: false
+            }))
     }
 
     takePicture = async () => {
@@ -46,7 +53,8 @@ export class UploadImage extends React.Component {
         const { cancelled, uri } = await ImagePicker.launchCameraAsync({
             allowsEditing: false,
         });
-        this.setState({ image: uri });
+
+        if (!cancelled) this.uploadImage(uri);
     };
 
     render() {
