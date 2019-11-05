@@ -8,7 +8,7 @@ import {UploadImage} from '../components/UploadImage';
 export default function HomeScreen() {
     return (
         <View style={styles.container}>
-            <UploadImage/>
+            <UploadImage size={{height: 150, width: 150}}/>
         </View>
     );
 }
@@ -19,7 +19,7 @@ HomeScreen.navigationOptions = {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#000',
+        padding: 10,
+        backgroundColor: '#ffffff',
     },
 });
