@@ -1,18 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {StyleSheet, FlatList, View, Text} from 'react-native';
+import {StyleSheet, ScrollView, View, Text} from 'react-native';
+import { ListItem } from 'react-native-elements'
 import {serverAddress} from '../constants/server';
 import {Spinner} from './loaderScreen';
 
-export const HistoryScreen = () => {
+export const HistoryScreen = ({ navigation }) => {
     const [historyGames, setHistoryGames] = useState([]);
     const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
         setLoading(true);
         axios.get(`${serverAddress}/game`)
-            .then((data) => {
-                setHistoryGames(data.data);
+            .then((response) => {
+                setHistoryGames(response.data);
             })
             .finally(() => setLoading(false));
     }, []);
@@ -20,11 +21,29 @@ export const HistoryScreen = () => {
     return (
         <View style={styles.container}>
             {!isLoading ?
-                <FlatList
-                    data={historyGames}
-                    renderItem={({ item }) => <Item {...item} />}
-                    keyExtractor={item => item.id + ''}
-                /> :
+                <ScrollView>
+                    {
+                        historyGames.map((game, i) => (
+                            <ListItem
+                                onPress={() => navigation.navigate('Game')}
+                                key={i}
+                                contentContainerStyle={styles.teamContainer}
+                                rightContentContainerStyle={styles.teamContainer}
+                                leftAvatar={{ source: { uri: game.team1.image } }}
+                                rightAvatar={{ source: { uri: game.team2.image } }}
+                                title={game.team1.name}
+                                subtitle={`${game.team1.goals}`}
+                                rightTitle={game.team2.name}
+                                rightSubtitle={`${game.team2.goals}`}
+                                bottomDivider
+                                titleStyle={game.team1.goals === 10 ? {...styles.winner} : {...styles.loser}}
+                                subtitleStyle={game.team1.goals === 10 ? {...styles.winner} : {...styles.loser}}
+                                rightTitleStyle={game.team2.goals === 10 ? {...styles.winner} : {...styles.loser}}
+                                rightSubtitleStyle={game.team2.goals === 10 ? {...styles.winner} : {...styles.loser}}
+                            />
+                        ))
+                    }
+                </ScrollView> :
                 <Spinner/>
             }
         </View>
@@ -35,22 +54,19 @@ HistoryScreen.navigationOptions = {
     header: null,
 };
 
-export const Item = ({team1, team2, date}) => {
-    return (
-        <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Text>{team1.name}</Text>
-            <Text>{team1.goals}</Text>
-            <Text>:</Text>
-            <Text>{team2.goals}</Text>
-            <Text>{team2.name}</Text>
-        </View>
-    )
-}
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         height: '100%',
         width: '100%',
     },
+    teamContainer: {
+        width: '50%'
+    },
+    winner: {
+        color: 'green',
+    },
+    loser: {
+        color: 'red',
+    }
 });

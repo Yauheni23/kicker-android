@@ -16,7 +16,7 @@ const config = {
     successActionStatus: 201
 }
 
-export const UploadImage = ({size: {height, width}}) => {
+export const UploadImage = ({size: {height, width}, onChange}) => {
     const [image, setImage] = useState('');
     const [isUploading, setUploading] = useState(false);
 
@@ -44,6 +44,7 @@ export const UploadImage = ({size: {height, width}}) => {
         RNS3.put(file, config)
             .then(response => {
                 setImage(response.body.postResponse.location);
+                onChange(response.body.postResponse.location);
                 setUploading(false);
             })
     };
