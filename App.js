@@ -6,7 +6,7 @@ import {StyleSheet, View, StatusBar, ImageBackground} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 
 import AppNavigator from './navigation/AppNavigator';
-import {EntryScreen} from './screens/EntryScreen';
+import {EntryScreen} from './screens/entry/EntryScreen';
 
 export default function App(props) {
     const [isLoadingComplete, setLoadingComplete] = useState(false);

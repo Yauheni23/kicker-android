@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Image, Text, View} from 'react-native';
 import {RegisterScreen} from './RegisterScreen';
 import {LoginScreen} from './LoginScreen';
-import {BirdAnimation} from '../components/BirdAnimation';
+import {BirdAnimation} from '../../components/BirdAnimation';
 
 export const EntryScreen = ({login}) => {
     const [isRegister, setIsRegister] = useState(false);
@@ -30,7 +30,7 @@ export const EntryScreen = ({login}) => {
                 <View>
                     <View style={{height: '40%', width: '100%', marginTop: 10}}>
                         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Image style={{height: 230, width: 230}} source={require('../assets/images/logo.png')}/>
+                            <Image style={{height: 230, width: 230}} source={require('../../assets/images/logo.png')}/>
                         </View>
                         <Text style={{textAlign: 'center', fontSize: 50}}>Kicker</Text>
                     </View>

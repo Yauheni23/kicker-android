@@ -1,1 +1,1 @@
-export const serverAddress = 'http://172.18.144.38';
+export const serverAddress = 'https://dark-fangs-58750.herokuapp.com';

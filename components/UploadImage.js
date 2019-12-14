@@ -1,9 +1,7 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, TouchableOpacity, View, Image, ActivityIndicator} from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
-import * as axios from 'axios';
-import {serverAddress} from '../constants/server';
 import {RNS3} from 'react-native-aws3/src/RNS3';
 import {ACCESS_KEY, SECRET_KEY} from '../env'
 
@@ -16,9 +14,13 @@ const config = {
     successActionStatus: 201
 }
 
-export const UploadImage = ({size: {height, width}, onChange}) => {
+export const UploadImage = ({size: {height, width}, onChange, defaultImage}) => {
     const [image, setImage] = useState('');
     const [isUploading, setUploading] = useState(false);
+
+    useEffect(() => {
+        setImage(defaultImage);
+    }, [defaultImage]);
 
     const selectPicture = async () => {
         await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -56,7 +58,7 @@ export const UploadImage = ({size: {height, width}, onChange}) => {
                     <View style={{...styles.button, height, width}}>
                         {image ?
                             <Image style={styles.image} resizeMode={'cover'} source={{uri: image}}/> :
-                            <Text style={styles.text}>Add image</Text>
+                            <Image style={styles.image} resizeMode={'cover'} source={require('../assets/images/defaultUploadImage.png')}/>
                         }
                     </View>
                 </TouchableOpacity> :

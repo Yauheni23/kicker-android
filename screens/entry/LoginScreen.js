@@ -15,7 +15,7 @@ export const LoginScreen = ({signIn, swapPage}) => {
     return (
         <View style={styles.container}>
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require('../assets/images/user.png')}/>
+                <Image style={styles.inputIcon} source={require('../../assets/images/user.png')}/>
                 <TextInput style={styles.inputs}
                            placeholder="Username"
                            underlineColorAndroid='transparent'
@@ -23,7 +23,7 @@ export const LoginScreen = ({signIn, swapPage}) => {
             </View>
 
             <View style={styles.inputContainer}>
-                <Image style={styles.inputIcon} source={require('../assets/images/password.png')}/>
+                <Image style={styles.inputIcon} source={require('../../assets/images/password.png')}/>
                 <TextInput style={styles.inputs}
                            placeholder="Password"
                            secureTextEntry={true}
