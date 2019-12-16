@@ -4,7 +4,8 @@ import {UploadImage} from '../../components/UploadImage';
 import {Button, Input} from 'react-native-elements';
 import axios from 'axios';
 import {serverAddress} from '../../constants/server';
-import {ViewWithLoading} from '../../components/ViewWithLoading';
+import {ViewWithSending} from '../../components/ViewWithSending';
+import Colors from '../../constants/Colors';
 
 export const UserEditorScreen = () => {
     const [name, setName] = useState('');
@@ -30,9 +31,9 @@ export const UserEditorScreen = () => {
     }
 
     return (
-        <ViewWithLoading isLoading={isSending}>
+        <ViewWithSending isSending={isSending}>
             <View style={{flex: 1, alignItems: 'center'}}>
-                <Text style={{fontSize: 24}}>
+                <Text style={{fontSize: 40, color: Colors.headerText}}>
                     Creating user
                 </Text>
                 <View>
@@ -45,12 +46,12 @@ export const UserEditorScreen = () => {
                     placeholder='Your nickname'
                 />
                 <Button
-                    buttonStyle={{backgroundColor: 'blue'}}
+                    buttonStyle={{backgroundColor: Colors.creatingButton}}
                     title="Create"
                     onPress={createUser}
                 />
             </View>
-        </ViewWithLoading>
+        </ViewWithSending>
 
     )
 }

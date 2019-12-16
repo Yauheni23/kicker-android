@@ -4,7 +4,8 @@ import {serverAddress} from '../../constants/server';
 import axios from 'axios';
 import {Spinner} from '../loaderScreen';
 import {Button} from 'react-native-elements';
-import {ViewWithLoading} from '../../components/ViewWithLoading';
+import {ViewWithSending} from '../../components/ViewWithSending';
+import Colors from '../../constants/Colors';
 
 
 export const TeamUserEditorScreen = ({navigation}) => {
@@ -54,7 +55,7 @@ export const TeamUserEditorScreen = ({navigation}) => {
         })
             .then(() => update())
             .then(() => {
-                ToastAndroid.show(`Done`, 2000);
+                ToastAndroid.show(`${selectedUser.name} add to the team ${selectedTeam.name}`, 2000);
                 setSending(false)
             });
     };
@@ -71,7 +72,7 @@ export const TeamUserEditorScreen = ({navigation}) => {
 
     return (<View>
                 {!isLoading ?
-                    <ViewWithLoading isLoading={isSending}>
+                    <ViewWithSending isSending={isSending}>
                         <View style={styles.main}>
                             <View>
                                 <View style={{display: 'flex', alignItems: 'center'}}>
@@ -84,26 +85,32 @@ export const TeamUserEditorScreen = ({navigation}) => {
                                     </Picker>
                                     {selectedTeam && <Image style={{width: 175, height: 175}} source={{uri: selectedTeam.image}}/>}
                                 </View>
-                                <View style={{display: 'flex', alignItems: 'center'}}>
-                                    <Text style={styles.name}>User</Text>
-                                    <Picker
-                                        selectedValue={selectedUser}
-                                        style={{height: 50, width: '100%'}}
-                                        onValueChange={user => setUser(user)}>
-                                        {enabledUsers.map(user => <Picker.Item key={user.id} label={user.name} value={user}/>)}
-                                    </Picker>
-                                    {selectedUser && <Image style={{width: 175, height: 175}} source={{uri: selectedUser.image}}/>}
-                                </View>
+                                {enabledUsers.length ?
+                                    <View style={{display: 'flex', alignItems: 'center'}}>
+                                        <Text style={styles.name}>User</Text>
+                                        <Picker
+                                            selectedValue={selectedUser}
+                                            style={{height: 50, width: '100%'}}
+                                            onValueChange={user => setUser(user)}>
+                                            {enabledUsers.map(user => <Picker.Item key={user.id} label={user.name} value={user}/>)}
+                                        </Picker>
+                                        {selectedUser && <Image style={{width: 175, height: 175}} source={{uri: selectedUser.image}}/>}
+                                    </View> :
+                                    <View style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginHorizontal: 10}}>
+                                        <Text style={{textAlign: 'center', color: Colors.error, fontSize: 40}}>The team has all the users!!!</Text>
+                                    </View>
+                                }
+
                             </View>
 
                             <Button
-                                buttonStyle={{backgroundColor: 'blue'}}
+                                buttonStyle={{backgroundColor: Colors.creatingButton}}
                                 title="Add"
                                 onPress={addUserToTeam}
                                 disabled={!selectedUser || !selectedTeam}
                             />
                         </View>
-                    </ViewWithLoading>
+                    </ViewWithSending>
                 : <Spinner/>}
         </View>);
 };
@@ -120,7 +127,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     name: {
-        fontSize: 30
+        fontSize: 40,
+        lineHeight: 42,
+        color: Colors.headerText
     }
 });
 

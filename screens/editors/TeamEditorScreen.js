@@ -4,7 +4,8 @@ import axios from 'axios';
 import {serverAddress} from '../../constants/server';
 import {UploadImage} from '../../components/UploadImage';
 import {Button, Input} from 'react-native-elements';
-import {ViewWithLoading} from '../../components/ViewWithLoading';
+import {ViewWithSending} from '../../components/ViewWithSending';
+import Colors from '../../constants/Colors';
 
 export const TeamEditorScreen = () => {
     const [name, setName] = useState('');
@@ -30,9 +31,9 @@ export const TeamEditorScreen = () => {
     }
 
     return (
-        <ViewWithLoading isLoading={isSending}>
+        <ViewWithSending isSending={isSending}>
             <View style={{flex: 1, alignItems: 'center'}}>
-                <Text style={{fontSize: 24}}>
+                <Text style={{fontSize: 40, color: Colors.headerText}}>
                     Creating team
                 </Text>
                 <View>
@@ -45,12 +46,11 @@ export const TeamEditorScreen = () => {
                     placeholder='Your team name'
                 />
                 <Button
-                    buttonStyle={{backgroundColor: 'blue'}}
+                    buttonStyle={{backgroundColor: Colors.creatingButton}}
                     title="Create"
                     onPress={createTeam}
                 />
             </View>
-        </ViewWithLoading>
-
+        </ViewWithSending>
     )
 }

@@ -9,8 +9,6 @@ export const EntryScreen = ({login}) => {
     const [isSubmit, setIsSubmit] = useState(false);
 
     const singIn = ({username, password}) => {
-        console.log(username);
-        console.log(password);
         setIsSubmit(true);
         setTimeout(() => {
             login();
@@ -18,9 +16,6 @@ export const EntryScreen = ({login}) => {
     }
 
     const singUp = ({username, password, repeatedPassword}) => {
-        console.log(username);
-        console.log(password);
-        console.log(repeatedPassword);
         login();
     }
 
