@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Modal, ScrollView, Text, TouchableHighlight, View} from 'react-native';
 
 const defaultImageUser = require('../assets/images/incognito-user.png');
@@ -17,9 +17,15 @@ const defaultSize = {
         width: 225,
         height: 250,
     }
-}
+};
 
-export const Select = ({list, onSelect, onClose, mode = 'user', size = 'small'}) => {
+const fontSize = {
+    'small': 14,
+    'middle': 20,
+    'large': 30
+};
+
+export const Select = ({value, list, onSelect, onClose, mode = 'user', size = 'small'}) => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [item, setItem] = useState();
     const defaultImage = mode === 'user' ? defaultImageUser : defaultImageTeam;
@@ -37,6 +43,10 @@ export const Select = ({list, onSelect, onClose, mode = 'user', size = 'small'})
         setModalVisible(false);
     };
 
+    useEffect(() => {
+        setItem(value);
+    }, [value]);
+
     return (<View>
         <TouchableHighlight onPress={() => setModalVisible(true)}>
             <View style={{...defaultSize[size], display: 'flex', alignItems: 'center'}}>
@@ -44,7 +54,7 @@ export const Select = ({list, onSelect, onClose, mode = 'user', size = 'small'})
                     source={item ? {uri: item.image} : defaultImage}
                     style={{...defaultSize[size], height: defaultSize[size].height - 25}}
                 />
-                <Text style={{textAlign: 'center'}}>{item ? item.name : 'No name'}</Text>
+                <Text style={{textAlign: 'center', fontSize: fontSize[size]}}>{item ? item.name : 'No name'}</Text>
             </View>
         </TouchableHighlight>
 
@@ -64,12 +74,12 @@ export const Select = ({list, onSelect, onClose, mode = 'user', size = 'small'})
                     flex: 1, flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-between', margin: 10
                 }}>
                     {list.map(item => {
-                        return (<TouchableHighlight key={item.id} onPress={() => onSelectItem(item)}>
+                        return item ? (<TouchableHighlight key={item.id} onPress={() => onSelectItem(item)}>
                             <View>
                                 <Image source={{uri: item.image}} style={{width: 100, height: 100}}/>
                                 <Text style={{textAlign: 'center'}}>{item.name}</Text>
                             </View>
-                        </TouchableHighlight>);
+                        </TouchableHighlight>): null;
                     })}
                 </View>
             </ScrollView>

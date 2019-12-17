@@ -1,22 +1,28 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
+import {ScrollView, Text, ToastAndroid, View} from 'react-native';
 import axios from 'axios';
 import {serverAddress} from '../../constants/server';
 import {ViewWithLoading} from '../../components/ViewWithLoading';
-import {Input} from 'react-native-elements';
+import {Button, Input} from 'react-native-elements';
 import Colors from '../../constants/Colors';
 import {Select} from '../../components/Select';
+import {ViewWithSending} from '../../components/ViewWithSending';
+import {validateGame} from '../../validators/game';
 
 
 export const GameEditorScreen = () => {
     const [isLoading, setLoading] = useState(false);
+    const [isSending, setSending] = useState(false);
     const [teams, setTeams] = useState([]);
     const [firstSelectedTeam, setFirstTeam] = useState();
     const [secondSelectedTeam, setSecondTeam] = useState();
-    const [goals, setGoals] = useState({'0': '0', '1': '0'});
-    const [playersFirstTeam, setPlayersFirstTeam] = useState([undefined,undefined]);
-    const [playersSecondTeam, setPlayersSecondTeam] = useState([undefined,undefined]);
+    const [goals, setGoals] = useState(['0', '0']);
+    const [playersFirstTeam, setPlayersFirstTeam] = useState([undefined, undefined]);
+    const [playersSecondTeam, setPlayersSecondTeam] = useState([undefined, undefined]);
     const [enabledFirstTeamUsers, setEnabledFirstTeamUsers] = useState([]);
+    const [enabledSecondTeamUsers, setEnabledSecondTeamUsers] = useState([]);
+    const [goalsFirstTeam, setGoalsFirstTeam] = useState(['0', '0']);
+    const [goalsSecondTeam, setGoalsSecondTeam] = useState(['0', '0']);
 
     useEffect(() => {
         setLoading(true);
@@ -29,80 +35,199 @@ export const GameEditorScreen = () => {
 
     useEffect(() => {
         const selectedUsers = playersFirstTeam.concat(playersSecondTeam);
-        const lol = secondSelectedTeam.users.filter(user => selectedUsers.every(userFilter => userFilter.id !== user.id))
-        setEnabledFirstTeamUsers(lol)
-    }, [playersFirstTeam, playersSecondTeam]);
+        if (firstSelectedTeam) {
+            const lol = firstSelectedTeam.users.filter(
+                user => selectedUsers.every(userFilter => !userFilter || (userFilter.id !== user.id)));
+            setEnabledFirstTeamUsers(lol);
+        }
+        if (secondSelectedTeam) {
+            const kek = secondSelectedTeam.users.filter(
+                user => selectedUsers.every(userFilter => !userFilter || (userFilter.id !== user.id)));
+            setEnabledSecondTeamUsers(kek);
+        }
+    }, [firstSelectedTeam, secondSelectedTeam, playersFirstTeam, playersSecondTeam]);
+
+    const chooseFirstTeam = (team) => {
+        setFirstTeam(team);
+        setPlayersFirstTeam([undefined, undefined]);
+    };
+
+    const chooseSecondTeam = (team) => {
+        setSecondTeam(team);
+        setPlayersSecondTeam([undefined, undefined]);
+    };
+
+    const createGame = () => {
+        const requestBody = generateRequestBody();
+
+        if (validateGame(requestBody)) {
+            setSending(true);
+            axios.post(`${serverAddress}/game`, requestBody)
+                .then(() => {
+                    clear();
+                    ToastAndroid.show(`Game was created`, 2000);
+                    setSending(false);
+                })
+                .catch(() => ToastAndroid.show(`The game isn't correct`, 2000));
+        } else {
+            ToastAndroid.show(`The game isn't correct`, 1000);
+        }
+    };
+
+    const generateRequestBody = () => ({
+        team1: {
+            goals: +goals[0], id: firstSelectedTeam && firstSelectedTeam.id, player1: {
+                id: playersFirstTeam[0] && playersFirstTeam[0].id, goals: +goalsFirstTeam[0]
+            }, player2: {
+                id: playersFirstTeam[1] && playersFirstTeam[1].id, goals: +goalsFirstTeam[1]
+            }
+        }, team2: {
+            goals: +goals[1], id: secondSelectedTeam && secondSelectedTeam.id, player1: {
+                id: playersSecondTeam[0] && playersSecondTeam[0].id, goals: +goalsSecondTeam[0]
+            }, player2: {
+                id: playersSecondTeam[1] && playersSecondTeam[1].id, goals: +goalsSecondTeam[1]
+            }
+        }
+    });
+
+    const clear = () => {
+        setFirstTeam(undefined);
+        setSecondTeam(undefined);
+        setGoals(['0', '0']);
+        setPlayersFirstTeam([undefined, undefined]);
+        setPlayersSecondTeam([undefined, undefined]);
+        setEnabledFirstTeamUsers([]);
+        setEnabledSecondTeamUsers([]);
+        setGoalsFirstTeam(['0', '0']);
+        setGoalsSecondTeam(['0', '0']);
+    };
 
     const getEnabledTeam = (selectedTeam) => {
         return teams.filter(team => team.id !== (selectedTeam && selectedTeam.id));
     };
 
-    const getSecondTeamEnabledPlayers = (selectedUser) => {
-        const selectedUsers = [playersFirstTeam[0], playersFirstTeam[1]]
-            .concat(playersSecondTeam[0], playersSecondTeam[1])
-            .filter(user => user && selectedUser && (user.id !== selectedUser.id));
+    return (<ScrollView>
+            <ViewWithLoading isLoading={isLoading}>
+                <ViewWithSending isSending={isSending}>
+                    <Text style={{color: Colors.headerText, fontSize: 40, textAlign: 'center'}}>Creating Game</Text>
+                    <View style={{display: 'flex', flexDirection: 'row'}}>
+                        <View style={{flex: 1, alignItems: 'center'}}>
+                            <Select list={getEnabledTeam(secondSelectedTeam)} onSelect={chooseFirstTeam} mode='team'
+                                    size='middle' value={firstSelectedTeam}/>
+                        </View>
+                        <View style={{flex: 1, alignItems: 'center'}}>
+                            <Select list={getEnabledTeam(firstSelectedTeam)} onSelect={chooseSecondTeam} mode='team'
+                                    size='middle' value={secondSelectedTeam}/>
+                        </View>
+                    </View>
+                    <View style={{
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                    }}>
+                        <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
+                            <Input
+                                inputStyle={{textAlign: 'center'}}
+                                keyboardType='number-pad'
+                                value={goals[0]}
+                                maxLength={2}
+                                onChangeText={countGoals => setGoals([
+                                    countGoals, goals[1]
+                                ])}
+                            />
+                        </View>
+                        <Text>:</Text>
+                        <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
+                            <Input
+                                inputStyle={{textAlign: 'center'}}
+                                keyboardType='number-pad'
+                                value={goals[1]}
+                                maxLength={2}
+                                onChangeText={countGoals => setGoals([
+                                    goals[0], countGoals
+                                ])}
+                            />
+                        </View>
 
-        return secondSelectedTeam.users.filter(user => selectedUsers.every(userFilter => userFilter.id !== user.id));
-    };
+                    </View>
+                    <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', margin: 5}}>
+                        {firstSelectedTeam &&
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                            <View style={{display: 'flex', alignItems: 'center'}}>
+                                <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[0])}
+                                        value={playersFirstTeam[0]}
+                                        onSelect={(player) => setPlayersFirstTeam([
+                                            player, playersFirstTeam[1]
+                                        ])}/>
+                                <Input
+                                    inputStyle={{textAlign: 'center'}}
+                                    keyboardType='number-pad'
+                                    value={goalsFirstTeam[0]}
+                                    maxLength={2}
+                                    onChangeText={countGoals => setGoalsFirstTeam([
+                                        countGoals, goalsFirstTeam[1]
+                                    ])}/>
+                            </View>
+                            <View style={{display: 'flex', alignItems: 'center'}}>
+                                <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[1])}
+                                        value={playersFirstTeam[1]}
+                                        onSelect={(player) => setPlayersFirstTeam([
+                                            playersFirstTeam[0], player
+                                        ])}/>
+                                <Input
+                                    inputStyle={{textAlign: 'center'}}
+                                    keyboardType='number-pad'
+                                    value={goalsFirstTeam[1]}
+                                    maxLength={2}
+                                    onChangeText={countGoals => setGoalsFirstTeam([
+                                        goalsFirstTeam[0], countGoals
+                                    ])}/>
+                            </View>
 
-    return (<ViewWithLoading isLoading={isLoading}>
-        <Text style={{color: Colors.headerText, fontSize: 40, textAlign: 'center'}}>Creating Game</Text>
-        <View style={{display: 'flex', flexDirection: 'row'}}>
-            <View style={{flex: 1, alignItems: 'center'}}>
-                <Select list={getEnabledTeam(secondSelectedTeam)} onSelect={(team) => setFirstTeam(team)} mode='team'
-                        size='middle'/>
-            </View>
-            <View style={{flex: 1, alignItems: 'center'}}>
-                <Select list={getEnabledTeam(firstSelectedTeam)} onSelect={(team) => setSecondTeam(team)} mode='team'
-                 size='middle'/>
-            </View>
-        </View>
-        <View style={{display: 'flex', justifyContent: 'space-around', flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
-                <Input
-                    inputStyle={{textAlign: 'center'}}
-                    keyboardType='number-pad'
-                    value={goals['0']}
-                    maxLength={2}
-                    onChangeText={countGoals => setGoals({
-                        ...goals, '0': countGoals
-                    })}
-                />
-            </View>
-            <Text>:</Text>
-            <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
-                <Input
-                    inputStyle={{textAlign: 'center'}}
-                    keyboardType='number-pad'
-                    value={goals['1']}
-                    maxLength={2}
-                    onChangeText={countGoals => setGoals({
-                        ...goals, '1': countGoals
-                    })}
-                />
-            </View>
+                        </View>}
+                        {secondSelectedTeam &&
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                            <View style={{display: 'flex', alignItems: 'center'}}>
+                                <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[0])}
+                                        value={playersSecondTeam[0]}
+                                        onSelect={(player) => setPlayersSecondTeam([
+                                            player, playersSecondTeam[1]
+                                        ])}/>
+                                <Input
+                                    inputStyle={{textAlign: 'center'}}
+                                    keyboardType='number-pad'
+                                    value={goalsSecondTeam[0]}
+                                    maxLength={2}
+                                    onChangeText={countGoals => setGoalsSecondTeam([
+                                        countGoals, goalsSecondTeam[1]
+                                    ])}/>
+                            </View>
+                            <View style={{display: 'flex', alignItems: 'center'}}>
+                                <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[1])}
+                                        value={playersSecondTeam[1]}
+                                        onSelect={(player) => setPlayersSecondTeam([
+                                            playersSecondTeam[0], player
+                                        ])}/>
+                                <Input
+                                    inputStyle={{textAlign: 'center'}}
+                                    keyboardType='number-pad'
+                                    value={goalsSecondTeam[1]}
+                                    maxLength={2}
+                                    onChangeText={countGoals => setGoals([
+                                        goalsSecondTeam[0], countGoals
+                                    ])}/>
+                            </View>
 
-        </View>
-        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', margin: 5}}>
-            {firstSelectedTeam && <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                <Select list={getFirstTeamEnabledPlayers(playersFirstTeam[0])} onSelect={(player) => setPlayersFirstTeam({
-                    ...playersFirstTeam, '0': player
-                })}/>
-                <Select list={getFirstTeamEnabledPlayers(playersFirstTeam[1])} onSelect={(player) => setPlayersFirstTeam({
-                    ...playersFirstTeam, '1': player
-                })}/>
-            </View>}
-            {secondSelectedTeam && <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                <Select list={getSecondTeamEnabledPlayers(playersSecondTeam[0])} onSelect={(player) => setPlayersSecondTeam({
-                    ...playersSecondTeam, '0': player
-                })}/>
-                <Select list={getSecondTeamEnabledPlayers(playersSecondTeam[1])} onSelect={(player) => setPlayersSecondTeam({
-                    ...playersSecondTeam, '1': player
-                })}/>
-            </View>}
-        </View>
+                        </View>}
+                    </View>
+                    <Button
+                        buttonStyle={{backgroundColor: Colors.creatingButton}}
+                        title="Create"
+                        onPress={createGame}
+                    />
+                </ViewWithSending>
 
-
-
-    </ViewWithLoading>);
+            </ViewWithLoading>
+        </ScrollView>);
 };

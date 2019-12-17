@@ -22,11 +22,11 @@ export const UserEditorScreen = () => {
                 setSending(false);
                 setName('');
                 setImage('');
-                ToastAndroid.show(`${name} was created`, 200);
+                ToastAndroid.show(`${name} was created`, 2000);
             })
             .catch(() => {
                 setSending(false);
-                ToastAndroid.show('Name should be unique', 200);
+                ToastAndroid.show('Name should be unique', 2000);
             })
     }
 
