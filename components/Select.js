@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Modal, ScrollView, Text, TouchableHighlight, View} from 'react-native';
+import {Image, Modal, ScrollView, StyleSheet, Text, TouchableHighlight, View} from 'react-native';
+import Colors from '../constants/Colors';
 
 const defaultImageUser = require('../assets/images/incognito-user.png');
 const defaultImageTeam = require('../assets/images/inco.png');
@@ -14,7 +15,7 @@ const defaultSize = {
         height: 150,
     },
     'large': {
-        width: 225,
+        width: 200,
         height: 250,
     }
 };
@@ -22,10 +23,10 @@ const defaultSize = {
 const fontSize = {
     'small': 14,
     'middle': 20,
-    'large': 30
+    'large': 28
 };
 
-export const Select = ({value, list, onSelect, onClose, mode = 'user', size = 'small'}) => {
+export const Select = ({value, list, onSelect, onClose, mode = 'user', size = 'small', header = 'Select'}) => {
     const [isModalVisible, setModalVisible] = useState(false);
     const [item, setItem] = useState();
     const defaultImage = mode === 'user' ? defaultImageUser : defaultImageTeam;
@@ -63,6 +64,7 @@ export const Select = ({value, list, onSelect, onClose, mode = 'user', size = 's
             transparent={false}
             visible={isModalVisible}
         >
+            <Text style={styles.name}>{header}</Text>
             <View>
                 <TouchableHighlight
                     onPress={onCloseModal}>
@@ -87,3 +89,9 @@ export const Select = ({value, list, onSelect, onClose, mode = 'user', size = 's
         </Modal>
     </View>);
 };
+
+const styles = StyleSheet.create({
+     name: {
+        fontSize: 35, lineHeight: 45, color: Colors.headerText, textAlign: 'center'
+    }
+});

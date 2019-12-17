@@ -6,6 +6,7 @@ import {Spinner} from '../loaderScreen';
 import {Button} from 'react-native-elements';
 import {ViewWithSending} from '../../components/ViewWithSending';
 import Colors from '../../constants/Colors';
+import {Select} from '../../components/Select';
 
 
 export const TeamUserEditorScreen = ({navigation}) => {
@@ -30,22 +31,21 @@ export const TeamUserEditorScreen = ({navigation}) => {
     }, []);
 
     useEffect(() => {
-        const enabledUsers = users.filter(
-            user => selectedTeam.users.findIndex(userSelectedTeam => user.id === userSelectedTeam.id) === -1);
-
-        setEnabledUsers(enabledUsers);
-        setUser(enabledUsers[0]);
+        if (selectedTeam) {
+            const enabledUsers = users.filter(
+                user => selectedTeam.users.findIndex(userSelectedTeam => user.id === userSelectedTeam.id) === -1);
+            setEnabledUsers(enabledUsers);
+        } else {
+            setEnabledUsers([]);
+        }
     }, [selectedTeam]);
-
-    useEffect(() => {
-        setTeam(teams[0]);
-    }, [teams]);
 
     useEffect(() => {
         navigation.addListener('willFocus', () => {
             setLoading(true);
-            update().then(() => setLoading(false));
-        })
+            update()
+                .then(() => setLoading(false));
+        });
     }, []);
 
     const addUserToTeam = () => {
@@ -53,11 +53,13 @@ export const TeamUserEditorScreen = ({navigation}) => {
         axios.post(`${serverAddress}/team/user`, {
             userId: selectedUser.id, teamId: selectedTeam.id
         })
-            .then(() => update())
             .then(() => {
                 ToastAndroid.show(`${selectedUser.name} add to the team ${selectedTeam.name}`, 2000);
-                setSending(false)
-            });
+                setSending(false);
+                setTeam(undefined);
+                setUser(undefined);
+            })
+            .then(() => update());
     };
 
     const update = () => {
@@ -71,65 +73,48 @@ export const TeamUserEditorScreen = ({navigation}) => {
     };
 
     return (<View>
-                {!isLoading ?
-                    <ViewWithSending isSending={isSending}>
-                        <View style={styles.main}>
-                            <View>
-                                <View style={{display: 'flex', alignItems: 'center'}}>
-                                    <Text style={styles.name}>Team</Text>
-                                    <Picker
-                                        selectedValue={selectedTeam}
-                                        style={{height: 50, width: '100%'}}
-                                        onValueChange={team => setTeam(team)}>
-                                        {teams.map(team => <Picker.Item key={team.id} label={team.name} value={team}/>)}
-                                    </Picker>
-                                    {selectedTeam && <Image style={{width: 175, height: 175}} source={{uri: selectedTeam.image}}/>}
-                                </View>
-                                {enabledUsers.length ?
-                                    <View style={{display: 'flex', alignItems: 'center'}}>
-                                        <Text style={styles.name}>User</Text>
-                                        <Picker
-                                            selectedValue={selectedUser}
-                                            style={{height: 50, width: '100%'}}
-                                            onValueChange={user => setUser(user)}>
-                                            {enabledUsers.map(user => <Picker.Item key={user.id} label={user.name} value={user}/>)}
-                                        </Picker>
-                                        {selectedUser && <Image style={{width: 175, height: 175}} source={{uri: selectedUser.image}}/>}
-                                    </View> :
-                                    <View style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginHorizontal: 10}}>
-                                        <Text style={{textAlign: 'center', color: Colors.error, fontSize: 40}}>The team has all the users!!!</Text>
-                                    </View>
-                                }
+        {!isLoading ? <ViewWithSending isSending={isSending}>
+            <View style={styles.main}>
+                <View>
+                    <Text style={styles.name}>Team + User</Text>
+                    <View style={{display: 'flex', alignItems: 'center'}}>
+                        <Select value={selectedTeam} onSelect={team => setTeam(team)} size='large' mode='team'
+                                list={teams}
+                        />
+                    </View>
+                    {enabledUsers.length ? <View style={{display: 'flex', alignItems: 'center'}}>
+                        <Select value={selectedUser} onSelect={user => setUser(user)} size='large' mode='user'
+                                list={enabledUsers}
+                        />
+                    </View> : <View style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', marginHorizontal: 10, marginTop: 10
+                    }}>
+                        {!selectedTeam ?
+                            <Text style={{textAlign: 'center', color: 'orange', fontSize: 30}}>Choose team!</Text> :
+                            <Text style={{textAlign: 'center', color: Colors.error, fontSize: 40}}>The team has all the
+                                users!!!</Text>}
+                    </View>}
 
-                            </View>
+                </View>
 
-                            <Button
-                                buttonStyle={{backgroundColor: Colors.creatingButton}}
-                                title="Add"
-                                onPress={addUserToTeam}
-                                disabled={!selectedUser || !selectedTeam}
-                            />
-                        </View>
-                    </ViewWithSending>
-                : <Spinner/>}
-        </View>);
+                <Button
+                    buttonStyle={{backgroundColor: Colors.creatingButton}}
+                    title="Add"
+                    onPress={addUserToTeam}
+                    disabled={!selectedUser || !selectedTeam}
+                />
+            </View>
+        </ViewWithSending> : <Spinner/>}
+    </View>);
 };
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
-        width: '100%',
-    },
-    main: {
-        display: 'flex',
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-    },
-    name: {
-        fontSize: 40,
-        lineHeight: 42,
-        color: Colors.headerText
+        height: '100%', width: '100%'
+    }, main: {
+        display: 'flex', flex: 1, flexDirection: 'column', justifyContent: 'space-between'
+    }, name: {
+        fontSize: 35, lineHeight: 45, color: Colors.headerText, textAlign: 'center'
     }
 });
 
