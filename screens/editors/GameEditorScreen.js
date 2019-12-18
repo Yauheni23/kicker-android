@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {ScrollView, Text, ToastAndroid, View} from 'react-native';
+import {ScrollView, ToastAndroid, View} from 'react-native';
 import axios from 'axios';
 import {serverAddress} from '../../constants/server';
 import {ViewWithLoading} from '../../components/ViewWithLoading';
-import {Button, Input} from 'react-native-elements';
+import {Button, Card, Input} from 'react-native-elements';
 import Colors from '../../constants/Colors';
 import {Select} from '../../components/Select';
 import {ViewWithSending} from '../../components/ViewWithSending';
@@ -106,25 +106,23 @@ export const GameEditorScreen = () => {
         return teams.filter(team => team.id !== (selectedTeam && selectedTeam.id));
     };
 
-    return (<ScrollView>
-            <ViewWithLoading isLoading={isLoading}>
-                <ViewWithSending isSending={isSending}>
-                    <Text style={{color: Colors.headerText, fontSize: 40, textAlign: 'center'}}>Creating Game</Text>
+    return (<ViewWithLoading isLoading={isLoading}>
+        <ViewWithSending isSending={isSending}>
+            <ScrollView>
+                <Card title='Creating Game' titleStyle={{color: Colors.headerText, fontSize: 40, textAlign: 'center'}}
+                      containerStyle={{margin: 15}}>
                     <View style={{display: 'flex', flexDirection: 'row'}}>
                         <View style={{flex: 1, alignItems: 'center'}}>
                             <Select list={getEnabledTeam(secondSelectedTeam)} onSelect={chooseFirstTeam} mode='team'
-                                    size='middle' value={firstSelectedTeam}/>
+                                    size='middle' value={firstSelectedTeam} header='Teams'/>
                         </View>
                         <View style={{flex: 1, alignItems: 'center'}}>
                             <Select list={getEnabledTeam(firstSelectedTeam)} onSelect={chooseSecondTeam} mode='team'
-                                    size='middle' value={secondSelectedTeam}/>
+                                    size='middle' value={secondSelectedTeam} header='Teams'/>
                         </View>
                     </View>
                     <View style={{
-                        display: 'flex',
-                        justifyContent: 'space-around',
-                        flexDirection: 'row',
-                        alignItems: 'center'
+                        display: 'flex', justifyContent: 'space-around', flexDirection: 'row', alignItems: 'center'
                     }}>
                         <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
                             <Input
@@ -137,7 +135,6 @@ export const GameEditorScreen = () => {
                                 ])}
                             />
                         </View>
-                        <Text>:</Text>
                         <View style={{width: 100, flexDirection: 'row', alignItems: 'flex-end'}}>
                             <Input
                                 inputStyle={{textAlign: 'center'}}
@@ -151,83 +148,95 @@ export const GameEditorScreen = () => {
                         </View>
 
                     </View>
-                    <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', margin: 5}}>
-                        {firstSelectedTeam &&
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                            <View style={{display: 'flex', alignItems: 'center'}}>
-                                <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[0])}
-                                        value={playersFirstTeam[0]}
-                                        onSelect={(player) => setPlayersFirstTeam([
-                                            player, playersFirstTeam[1]
+                    <View
+                        style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', margin: 5}}>
+                        <View style={{
+                            display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '50%'
+                        }}>
+                            {firstSelectedTeam && <>
+                                <View style={{display: 'flex', alignItems: 'center'}}>
+                                    <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[0])}
+                                            value={playersFirstTeam[0]}
+                                            header='Players'
+                                            onSelect={(player) => setPlayersFirstTeam([
+                                                player, playersFirstTeam[1]
+                                            ])}/>
+                                    <Input
+                                        inputStyle={{textAlign: 'center'}}
+                                        keyboardType='number-pad'
+                                        value={goalsFirstTeam[0]}
+                                        maxLength={2}
+                                        onChangeText={countGoals => setGoalsFirstTeam([
+                                            countGoals, goalsFirstTeam[1]
                                         ])}/>
-                                <Input
-                                    inputStyle={{textAlign: 'center'}}
-                                    keyboardType='number-pad'
-                                    value={goalsFirstTeam[0]}
-                                    maxLength={2}
-                                    onChangeText={countGoals => setGoalsFirstTeam([
-                                        countGoals, goalsFirstTeam[1]
-                                    ])}/>
-                            </View>
-                            <View style={{display: 'flex', alignItems: 'center'}}>
-                                <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[1])}
-                                        value={playersFirstTeam[1]}
-                                        onSelect={(player) => setPlayersFirstTeam([
-                                            playersFirstTeam[0], player
+                                </View>
+                                <View style={{display: 'flex', alignItems: 'center'}}>
+                                    <Select list={enabledFirstTeamUsers.concat(playersFirstTeam[1])}
+                                            value={playersFirstTeam[1]}
+                                            header='Players'
+                                            onSelect={(player) => setPlayersFirstTeam([
+                                                playersFirstTeam[0], player
+                                            ])}/>
+                                    <Input
+                                        inputStyle={{textAlign: 'center'}}
+                                        keyboardType='number-pad'
+                                        value={goalsFirstTeam[1]}
+                                        maxLength={2}
+                                        onChangeText={countGoals => setGoalsFirstTeam([
+                                            goalsFirstTeam[0], countGoals
                                         ])}/>
-                                <Input
-                                    inputStyle={{textAlign: 'center'}}
-                                    keyboardType='number-pad'
-                                    value={goalsFirstTeam[1]}
-                                    maxLength={2}
-                                    onChangeText={countGoals => setGoalsFirstTeam([
-                                        goalsFirstTeam[0], countGoals
-                                    ])}/>
-                            </View>
+                                </View>
+                            </>}
+                        </View>
 
-                        </View>}
-                        {secondSelectedTeam &&
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
-                            <View style={{display: 'flex', alignItems: 'center'}}>
-                                <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[0])}
-                                        value={playersSecondTeam[0]}
-                                        onSelect={(player) => setPlayersSecondTeam([
-                                            player, playersSecondTeam[1]
+                        <View style={{
+                            display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '50%'
+                        }}>
+                            {secondSelectedTeam && <>
+                                <View style={{display: 'flex', alignItems: 'center'}}>
+                                    <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[0])}
+                                            value={playersSecondTeam[0]}
+                                            header='Players'
+                                            onSelect={(player) => setPlayersSecondTeam([
+                                                player, playersSecondTeam[1]
+                                            ])}/>
+                                    <Input
+                                        inputStyle={{textAlign: 'center'}}
+                                        keyboardType='number-pad'
+                                        value={goalsSecondTeam[0]}
+                                        maxLength={2}
+                                        onChangeText={countGoals => setGoalsSecondTeam([
+                                            countGoals, goalsSecondTeam[1]
                                         ])}/>
-                                <Input
-                                    inputStyle={{textAlign: 'center'}}
-                                    keyboardType='number-pad'
-                                    value={goalsSecondTeam[0]}
-                                    maxLength={2}
-                                    onChangeText={countGoals => setGoalsSecondTeam([
-                                        countGoals, goalsSecondTeam[1]
-                                    ])}/>
-                            </View>
-                            <View style={{display: 'flex', alignItems: 'center'}}>
-                                <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[1])}
-                                        value={playersSecondTeam[1]}
-                                        onSelect={(player) => setPlayersSecondTeam([
-                                            playersSecondTeam[0], player
+                                </View>
+                                <View style={{display: 'flex', alignItems: 'center'}}>
+                                    <Select list={enabledSecondTeamUsers.concat(playersSecondTeam[1])}
+                                            value={playersSecondTeam[1]}
+                                            header='Players'
+                                            onSelect={(player) => setPlayersSecondTeam([
+                                                playersSecondTeam[0], player
+                                            ])}/>
+                                    <Input
+                                        inputStyle={{textAlign: 'center'}}
+                                        keyboardType='number-pad'
+                                        value={goalsSecondTeam[1]}
+                                        maxLength={2}
+                                        onChangeText={countGoals => setGoals([
+                                            goalsSecondTeam[0], countGoals
                                         ])}/>
-                                <Input
-                                    inputStyle={{textAlign: 'center'}}
-                                    keyboardType='number-pad'
-                                    value={goalsSecondTeam[1]}
-                                    maxLength={2}
-                                    onChangeText={countGoals => setGoals([
-                                        goalsSecondTeam[0], countGoals
-                                    ])}/>
-                            </View>
+                                </View>
+                            </>}
 
-                        </View>}
+                        </View>
                     </View>
                     <Button
                         buttonStyle={{backgroundColor: Colors.creatingButton}}
                         title="Create"
                         onPress={createGame}
                     />
-                </ViewWithSending>
+                </Card>
+            </ScrollView>
+        </ViewWithSending>
 
-            </ViewWithLoading>
-        </ScrollView>);
+    </ViewWithLoading>);
 };

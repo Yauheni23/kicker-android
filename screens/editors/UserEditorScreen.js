@@ -1,11 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Text, ToastAndroid, View} from 'react-native';
+import React, {useState} from 'react';
+import {ScrollView, ToastAndroid, View} from 'react-native';
 import {UploadImage} from '../../components/UploadImage';
-import {Button, Input} from 'react-native-elements';
+import {Button, Card, Input} from 'react-native-elements';
 import axios from 'axios';
 import {serverAddress} from '../../constants/server';
 import {ViewWithSending} from '../../components/ViewWithSending';
 import Colors from '../../constants/Colors';
+import {ScrollViewForHorizontal} from '../../components/ScrollViewForHorizontal';
+
 
 export const UserEditorScreen = () => {
     const [name, setName] = useState('');
@@ -15,8 +17,7 @@ export const UserEditorScreen = () => {
     const createUser = () => {
         setSending(true);
         axios.post(`${serverAddress}/user`, {
-            name,
-            image
+            name, image
         })
             .then(() => {
                 setSending(false);
@@ -27,31 +28,37 @@ export const UserEditorScreen = () => {
             .catch(() => {
                 setSending(false);
                 ToastAndroid.show('Name should be unique', 2000);
-            })
-    }
+            });
+    };
 
-    return (
-        <ViewWithSending isSending={isSending}>
-            <View style={{flex: 1, alignItems: 'center'}}>
-                <Text style={{fontSize: 40, color: Colors.headerText}}>
-                    Creating user
-                </Text>
-                <View>
-                    <UploadImage size={{height: 150, width: 150}} onChange={image => setImage(image)} defaultImage={image}/>
-                </View>
-                <Input
-                    value={name}
-                    onChangeText={text => setName(text)}
-                    label='Name'
-                    placeholder='Your nickname'
-                />
-                <Button
-                    buttonStyle={{backgroundColor: Colors.creatingButton}}
-                    title="Create"
-                    onPress={createUser}
-                />
-            </View>
+    return (<ViewWithSending isSending={isSending}>
+            <ScrollViewForHorizontal>
+                <Card containerStyle={{flex: 1, alignItems: 'center', marginBottom: 15, minWidth: 250}}
+                      titleStyle={{fontSize: 40, color: Colors.headerText}} title='Creating User'>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+
+                        <UploadImage size={{height: 200, width: 200}} onChange={image => setImage(image)}
+                                     defaultImage={image}/>
+                        <View style={{width: '100%', padding: 0, marginHorizontal: 0, marginVertical: 20}}>
+                            <Input
+                                value={name}
+                                onChangeText={text => setName(text)}
+                                label='Name'
+                                placeholder='Your nickname'
+                            />
+                        </View>
+                    </View>
+                    <Button
+                        buttonStyle={{backgroundColor: Colors.creatingButton, minWidth: 250}}
+                        title="Create"
+                        onPress={createUser}
+                        disabled={!name.trim()}
+                    />
+
+                </Card>
+            </ScrollViewForHorizontal>
+
         </ViewWithSending>
 
-    )
-}
+    );
+};

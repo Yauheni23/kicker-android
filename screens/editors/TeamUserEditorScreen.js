@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Picker, StyleSheet, Text, ToastAndroid, View} from 'react-native';
+import {Image, Picker, ScrollView, StyleSheet, Text, ToastAndroid, View} from 'react-native';
 import {serverAddress} from '../../constants/server';
 import axios from 'axios';
 import {Spinner} from '../loaderScreen';
-import {Button} from 'react-native-elements';
+import {Button, Card} from 'react-native-elements';
 import {ViewWithSending} from '../../components/ViewWithSending';
 import Colors from '../../constants/Colors';
 import {Select} from '../../components/Select';
+import {ViewWithLoading} from '../../components/ViewWithLoading';
 
 
 export const TeamUserEditorScreen = ({navigation}) => {
@@ -72,40 +73,58 @@ export const TeamUserEditorScreen = ({navigation}) => {
             });
     };
 
-    return (<View>
-        {!isLoading ? <ViewWithSending isSending={isSending}>
-            <View style={styles.main}>
-                <View>
-                    <Text style={styles.name}>Team + User</Text>
-                    <View style={{display: 'flex', alignItems: 'center'}}>
-                        <Select value={selectedTeam} onSelect={team => setTeam(team)} size='large' mode='team'
-                                list={teams}
-                        />
+    return (<ViewWithLoading isLoading={isLoading}>
+        <ViewWithSending isSending={isSending}>
+            <ScrollView>
+                <Card style={styles.main} titleStyle={{fontSize: 40, color: Colors.headerText}} title='Team + User'>
+                    <View>
+                        <Card containerStyle={{marginTop: 0}}>
+                            <View style={{display: 'flex', alignItems: 'center'}}>
+                                <Select value={selectedTeam} onSelect={team => setTeam(team)} size='large'
+                                        mode='team'
+                                        list={teams}
+                                        header='Teams'
+                                />
+                            </View>
+                        </Card>
+
+                        {enabledUsers.length ?
+                            <Card containerStyle={{display: 'flex', alignItems: 'center', marginBottom: 15}}>
+                                <Select value={selectedUser} onSelect={user => setUser(user)} size='large'
+                                        mode='user'
+                                        list={enabledUsers}
+                                        header='Players'
+
+                                />
+                            </Card> :
+                            <View style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginHorizontal: 10,
+                                marginTop: 10
+                            }}>
+                                {!selectedTeam ?
+                                    <Text style={{textAlign: 'center', color: 'orange', fontSize: 30}}>Choose
+                                        team!</Text> :
+                                    <Text style={{textAlign: 'center', color: Colors.error, fontSize: 40}}>The team
+                                        has
+                                        all the
+                                        users!!!</Text>}
+                            </View>}
+
                     </View>
-                    {enabledUsers.length ? <View style={{display: 'flex', alignItems: 'center'}}>
-                        <Select value={selectedUser} onSelect={user => setUser(user)} size='large' mode='user'
-                                list={enabledUsers}
-                        />
-                    </View> : <View style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', marginHorizontal: 10, marginTop: 10
-                    }}>
-                        {!selectedTeam ?
-                            <Text style={{textAlign: 'center', color: 'orange', fontSize: 30}}>Choose team!</Text> :
-                            <Text style={{textAlign: 'center', color: Colors.error, fontSize: 40}}>The team has all the
-                                users!!!</Text>}
-                    </View>}
 
-                </View>
-
-                <Button
-                    buttonStyle={{backgroundColor: Colors.creatingButton}}
-                    title="Add"
-                    onPress={addUserToTeam}
-                    disabled={!selectedUser || !selectedTeam}
-                />
-            </View>
-        </ViewWithSending> : <Spinner/>}
-    </View>);
+                    <Button
+                        buttonStyle={{backgroundColor: Colors.creatingButton}}
+                        title="Add"
+                        onPress={addUserToTeam}
+                        disabled={!selectedUser || !selectedTeam}
+                    />
+                </Card>
+            </ScrollView>
+        </ViewWithSending>
+    </ViewWithLoading>);
 };
 
 const styles = StyleSheet.create({

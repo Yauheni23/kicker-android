@@ -10,7 +10,7 @@ import {EntryScreen} from './screens/entry/EntryScreen';
 
 export default function App(props) {
     const [isLoadingComplete, setLoadingComplete] = useState(false);
-    const [isEntry, setIsEntry] = useState(true);
+    const [isEntry, setIsEntry] = useState(false);
 
     if (!isLoadingComplete && !props.skipLoadingScreen) {
         return (
