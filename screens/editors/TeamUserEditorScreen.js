@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Picker, ScrollView, StyleSheet, Text, ToastAndroid, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, ToastAndroid, View} from 'react-native';
 import {serverAddress} from '../../constants/server';
 import axios from 'axios';
-import {Spinner} from '../loaderScreen';
 import {Button, Card} from 'react-native-elements';
 import {ViewWithSending} from '../../components/ViewWithSending';
 import Colors from '../../constants/Colors';

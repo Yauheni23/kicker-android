@@ -8,9 +8,11 @@ import {Ionicons} from '@expo/vector-icons';
 import AppNavigator from './navigation/AppNavigator';
 import {EntryScreen} from './screens/entry/EntryScreen';
 
+export const EntryContext = React.createContext();
+
 export default function App(props) {
     const [isLoadingComplete, setLoadingComplete] = useState(false);
-    const [isEntry, setIsEntry] = useState(false);
+    const [admin, setAdmin] = useState({});
 
     if (!isLoadingComplete && !props.skipLoadingScreen) {
         return (
@@ -25,13 +27,16 @@ export default function App(props) {
             <ImageBackground source={require('./assets/images/background.jpg')}
                              style={{width: '100%', height: '100%'}}
             >
-                <View style={styles.container}>
-                    {isEntry ?
-                        <AppNavigator/> :
-                        <EntryScreen login={() => setIsEntry(true)}/>
-                    }
-                    <StatusBar hidden/>
-                </View>
+                <EntryContext.Provider value={{exit: () => setAdmin(undefined)}}>
+                    <View style={styles.container}>
+                        {admin ?
+                            <AppNavigator/> :
+                            <EntryScreen login={(admin) => setAdmin(admin)}/>
+                        }
+                        <StatusBar hidden/>
+                    </View>
+                </EntryContext.Provider>
+
             </ImageBackground>
         );
     }

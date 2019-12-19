@@ -52,7 +52,7 @@ export const UserEditorScreen = () => {
                         buttonStyle={{backgroundColor: Colors.creatingButton, minWidth: 250}}
                         title="Create"
                         onPress={createUser}
-                        disabled={!name.trim()}
+                        disabled={!(name.trim().length > 1)}
                     />
 
                 </Card>

@@ -221,7 +221,7 @@ export const GameEditorScreen = () => {
                                         keyboardType='number-pad'
                                         value={goalsSecondTeam[1]}
                                         maxLength={2}
-                                        onChangeText={countGoals => setGoals([
+                                        onChangeText={countGoals => setGoalsSecondTeam([
                                             goalsSecondTeam[0], countGoals
                                         ])}/>
                                 </View>

@@ -52,6 +52,7 @@ export const TeamEditorScreen = () => {
                         buttonStyle={{backgroundColor: Colors.creatingButton}}
                         title="Create"
                         onPress={createTeam}
+                        disabled={!(name.trim().length > 1)}
                     />
             </Card>
             </ScrollViewForHorizontal>

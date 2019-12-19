@@ -1,5 +1,5 @@
 import React from 'react';
-import {Spinner} from '../screens/loaderScreen';
+import {Spinner} from '../components/Spinner';
 
 
 export function ViewWithLoading ({children, isLoading}) {
