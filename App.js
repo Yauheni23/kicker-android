@@ -7,12 +7,12 @@ import {Ionicons} from '@expo/vector-icons';
 
 import AppNavigator from './navigation/AppNavigator';
 import {EntryScreen} from './screens/entry/EntryScreen';
-
+console.disableYellowBox = true;
 export const EntryContext = React.createContext();
 
 export default function App(props) {
     const [isLoadingComplete, setLoadingComplete] = useState(false);
-    const [admin, setAdmin] = useState({});
+    const [admin, setAdmin] = useState();
 
     if (!isLoadingComplete && !props.skipLoadingScreen) {
         return (
